@@ -16,7 +16,7 @@ import (
 	mdag "github.com/ipfs/boxo/ipld/merkledag"
 	ft "github.com/ipfs/boxo/ipld/unixfs"
 	uio "github.com/ipfs/boxo/ipld/unixfs/io"
-	path "github.com/ipfs/boxo/path"
+	"github.com/ipfs/boxo/path"
 	"github.com/ipfs/go-cid"
 	ipld "github.com/ipfs/go-ipld-format"
 	logging "github.com/ipfs/go-log"
@@ -62,7 +62,7 @@ func (s *Root) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		return nil, syscall.Errno(syscall.ENOENT)
 	}
 
-	p, err := path.ParsePath(name)
+	p, err := path.NewPath(name)
 	if err != nil {
 		log.Debugf("fuse failed to parse path: %q: %s", name, err)
 		return nil, syscall.Errno(syscall.ENOENT)

@@ -3,13 +3,12 @@ package rpc
 import (
 	"context"
 
-	"github.com/ipfs/boxo/coreiface/path"
-	ipfspath "github.com/ipfs/boxo/path"
+	"github.com/ipfs/boxo/path"
 	cid "github.com/ipfs/go-cid"
 	ipld "github.com/ipfs/go-ipld-format"
 )
 
-func (api *HttpApi) ResolvePath(ctx context.Context, p path.Path) (path.Resolved, error) {
+func (api *HttpApi) ResolvePath(ctx context.Context, p path.Path) (path.ImmutablePath, error) {
 	var out struct {
 		Cid     cid.Cid
 		RemPath string
@@ -18,7 +17,7 @@ func (api *HttpApi) ResolvePath(ctx context.Context, p path.Path) (path.Resolved
 	// TODO: this is hacky, fixing https://github.com/ipfs/go-ipfs/issues/5703 would help
 
 	var err error
-	if p.Namespace() == "ipns" {
+	if p.Namespace() == path.IPNSNamespace {
 		if p, err = api.Name().Resolve(ctx, p.String()); err != nil {
 			return nil, err
 		}
@@ -28,18 +27,12 @@ func (api *HttpApi) ResolvePath(ctx context.Context, p path.Path) (path.Resolved
 		return nil, err
 	}
 
-	// TODO:
-	ipath, err := ipfspath.FromSegments("/"+p.Namespace()+"/", out.Cid.String(), out.RemPath)
+	p, err = path.NewPathFromSegments(p.Namespace().String(), out.Cid.String(), out.RemPath)
 	if err != nil {
 		return nil, err
 	}
 
-	root, err := cid.Parse(ipfspath.Path(p.String()).Segments()[1])
-	if err != nil {
-		return nil, err
-	}
-
-	return path.NewResolvedPath(ipath, out.Cid, root, out.RemPath), nil
+	return path.NewImmutablePath(p)
 }
 
 func (api *HttpApi) ResolveNode(ctx context.Context, p path.Path) (ipld.Node, error) {

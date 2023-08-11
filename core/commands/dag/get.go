@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ipfs/boxo/coreiface/path"
 	ipldlegacy "github.com/ipfs/go-ipld-legacy"
 	"github.com/ipfs/kubo/core/commands/cmdenv"
+	"github.com/ipfs/kubo/core/commands/cmdutils"
 
 	"github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/multicodec"
@@ -28,7 +28,12 @@ func dagGet(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) e
 		return err
 	}
 
-	rp, err := api.ResolvePath(req.Context, path.New(req.Arguments[0]))
+	p, err := cmdutils.PathOrCidPath(req.Arguments[0])
+	if err != nil {
+		return err
+	}
+
+	rp, err := api.ResolvePath(req.Context, p)
 	if err != nil {
 		return err
 	}

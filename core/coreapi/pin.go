@@ -7,9 +7,9 @@ import (
 	bserv "github.com/ipfs/boxo/blockservice"
 	coreiface "github.com/ipfs/boxo/coreiface"
 	caopts "github.com/ipfs/boxo/coreiface/options"
-	"github.com/ipfs/boxo/coreiface/path"
 	offline "github.com/ipfs/boxo/exchange/offline"
 	"github.com/ipfs/boxo/ipld/merkledag"
+	"github.com/ipfs/boxo/path"
 	pin "github.com/ipfs/boxo/pinning/pinner"
 	"github.com/ipfs/go-cid"
 	"go.opentelemetry.io/otel/attribute"
@@ -165,7 +165,7 @@ type pinStatus struct {
 
 // BadNode is used in PinVerifyRes
 type badNode struct {
-	path path.Resolved
+	path path.ImmutablePath
 	err  error
 }
 
@@ -181,7 +181,7 @@ func (s *pinStatus) Err() error {
 	return s.err
 }
 
-func (n *badNode) Path() path.Resolved {
+func (n *badNode) Path() path.ImmutablePath {
 	return n.path
 }
 
@@ -210,7 +210,7 @@ func (api *PinAPI) Verify(ctx context.Context) (<-chan coreiface.PinStatus, erro
 		links, err := getLinks(ctx, root)
 		if err != nil {
 			status := &pinStatus{ok: false, cid: root}
-			status.badNodes = []coreiface.BadPinNode{&badNode{path: path.IpldPath(root), err: err}}
+			status.badNodes = []coreiface.BadPinNode{&badNode{path: path.NewIPLDPath(root), err: err}}
 			visited[root] = status
 			return status
 		}
@@ -251,11 +251,11 @@ func (api *PinAPI) Verify(ctx context.Context) (<-chan coreiface.PinStatus, erro
 
 type pinInfo struct {
 	pinType string
-	path    path.Resolved
+	path    path.ImmutablePath
 	err     error
 }
 
-func (p *pinInfo) Path() path.Resolved {
+func (p *pinInfo) Path() path.ImmutablePath {
 	return p.path
 }
 
@@ -281,7 +281,7 @@ func (api *PinAPI) pinLsAll(ctx context.Context, typeStr string) <-chan coreifac
 			select {
 			case out <- &pinInfo{
 				pinType: typeStr,
-				path:    path.IpldPath(c),
+				path:    path.NewIPLDPath(c),
 			}:
 			case <-ctx.Done():
 				return ctx.Err()

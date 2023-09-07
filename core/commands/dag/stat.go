@@ -33,11 +33,11 @@ func dagStat(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) 
 		if err != nil {
 			return err
 		}
-		rp, err := api.ResolvePath(req.Context, p)
+		rp, remainder, err := api.ResolvePath(req.Context, p)
 		if err != nil {
 			return err
 		}
-		if len(rp.Remainder()) > 0 {
+		if len(remainder) > 0 {
 			return fmt.Errorf("cannot return size for anything other than a DAG with a root CID")
 		}
 

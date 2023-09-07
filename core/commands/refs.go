@@ -175,7 +175,7 @@ func objectsForPaths(ctx context.Context, n iface.CoreAPI, paths []string) ([]ci
 		if err != nil {
 			return nil, err
 		}
-		o, err := n.ResolvePath(ctx, p)
+		o, _, err := n.ResolvePath(ctx, p)
 		if err != nil {
 			return nil, err
 		}

@@ -22,7 +22,7 @@ func (api *CoreAPI) ResolveNode(ctx context.Context, p path.Path) (ipld.Node, er
 	ctx, span := tracing.Span(ctx, "CoreAPI", "ResolveNode", trace.WithAttributes(attribute.String("path", p.String())))
 	defer span.End()
 
-	rp, err := api.ResolvePath(ctx, p)
+	rp, _, err := api.ResolvePath(ctx, p)
 	if err != nil {
 		return nil, err
 	}
@@ -36,40 +36,49 @@ func (api *CoreAPI) ResolveNode(ctx context.Context, p path.Path) (ipld.Node, er
 
 // ResolvePath resolves the path `p` using Unixfs resolver, returns the
 // resolved path.
-func (api *CoreAPI) ResolvePath(ctx context.Context, p path.Path) (path.ImmutablePath, error) {
+func (api *CoreAPI) ResolvePath(ctx context.Context, p path.Path) (path.ImmutablePath, []string, error) {
 	ctx, span := tracing.Span(ctx, "CoreAPI", "ResolvePath", trace.WithAttributes(attribute.String("path", p.String())))
 	defer span.End()
 
 	p, err := resolve.ResolveIPNS(ctx, api.namesys, p)
 	if err == resolve.ErrNoNamesys {
-		return nil, coreiface.ErrOffline
+		return nil, nil, coreiface.ErrOffline
 	} else if err != nil {
-		return nil, err
-	}
-
-	if p.Namespace() != path.IPFSNamespace && p.Namespace() != path.IPLDNamespace {
-		return nil, fmt.Errorf("unsupported path namespace: %s", p.Namespace().String())
+		return nil, nil, err
 	}
 
 	var resolver ipfspathresolver.Resolver
-	if p.Namespace() == path.IPLDNamespace {
+	switch p.Namespace() {
+	case path.IPLDNamespace:
 		resolver = api.ipldPathResolver
-	} else {
+	case path.IPFSNamespace:
 		resolver = api.unixFSPathResolver
+	default:
+		return nil, nil, fmt.Errorf("unsupported path namespace: %s", p.Namespace().String())
 	}
 
-	node, rest, err := resolver.ResolveToLastNode(ctx, p)
+	imPath, err := path.NewImmutablePath(p)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+
+	node, remainder, err := resolver.ResolveToLastNode(ctx, imPath)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	segments := []string{p.Namespace().String(), node.String()}
-	segments = append(segments, rest...)
+	segments = append(segments, remainder...)
 
 	p, err = path.NewPathFromSegments(segments...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return path.NewImmutablePath(p)
+	imPath, err = path.NewImmutablePath(p)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return imPath, remainder, nil
 }

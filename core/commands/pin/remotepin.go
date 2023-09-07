@@ -162,7 +162,7 @@ NOTE: a comma-separated notation is supported in CLI for convenience:
 			return err
 		}
 
-		rp, err := api.ResolvePath(ctx, p)
+		rp, _, err := api.ResolvePath(ctx, p)
 		if err != nil {
 			return err
 		}

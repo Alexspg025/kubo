@@ -53,7 +53,7 @@ func (api *DhtAPI) FindProviders(ctx context.Context, p path.Path, opts ...caopt
 		return nil, err
 	}
 
-	rp, err := api.core().ResolvePath(ctx, p)
+	rp, _, err := api.core().ResolvePath(ctx, p)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (api *DhtAPI) Provide(ctx context.Context, path path.Path, opts ...caopts.D
 		return err
 	}
 
-	rp, err := api.core().ResolvePath(ctx, path)
+	rp, _, err := api.core().ResolvePath(ctx, path)
 	if err != nil {
 		return err
 	}

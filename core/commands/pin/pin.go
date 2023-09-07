@@ -189,7 +189,7 @@ func pinAddMany(ctx context.Context, api coreiface.CoreAPI, enc cidenc.Encoder, 
 			return nil, err
 		}
 
-		rp, err := api.ResolvePath(ctx, p)
+		rp, _, err := api.ResolvePath(ctx, p)
 		if err != nil {
 			return nil, err
 		}
@@ -252,7 +252,7 @@ ipfs pin ls -t indirect <cid>
 				return err
 			}
 
-			rp, err := api.ResolvePath(req.Context, p)
+			rp, _, err := api.ResolvePath(req.Context, p)
 			if err != nil {
 				return err
 			}
@@ -468,7 +468,7 @@ func pinLsKeys(req *cmds.Request, typeStr string, api coreiface.CoreAPI, emit fu
 			return err
 		}
 
-		rp, err := api.ResolvePath(req.Context, p)
+		rp, _, err := api.ResolvePath(req.Context, p)
 		if err != nil {
 			return err
 		}
@@ -594,11 +594,11 @@ pin.
 		}
 
 		// Resolve the paths ahead of time so we can return the actual CIDs
-		from, err := api.ResolvePath(req.Context, fromPath)
+		from, _, err := api.ResolvePath(req.Context, fromPath)
 		if err != nil {
 			return err
 		}
-		to, err := api.ResolvePath(req.Context, toPath)
+		to, _, err := api.ResolvePath(req.Context, toPath)
 		if err != nil {
 			return err
 		}

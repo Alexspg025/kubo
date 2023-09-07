@@ -17,7 +17,7 @@ const forwardSeekLimit = 1 << 14 // 16k
 func (api *UnixfsAPI) Get(ctx context.Context, p path.Path) (files.Node, error) {
 	if p.Namespace().Mutable() { // use resolved path in case we are dealing with IPNS / MFS
 		var err error
-		p, err = api.core().ResolvePath(ctx, p)
+		p, _, err = api.core().ResolvePath(ctx, p)
 		if err != nil {
 			return nil, err
 		}

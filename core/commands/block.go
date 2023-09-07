@@ -270,7 +270,7 @@ It takes a list of CIDs to remove from the local datastore..
 				return err
 			}
 
-			rp, err := api.ResolvePath(req.Context, p)
+			rp, _, err := api.ResolvePath(req.Context, p)
 			if err != nil {
 				return err
 			}

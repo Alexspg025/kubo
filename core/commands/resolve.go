@@ -134,15 +134,15 @@ Resolve the value of an IPFS DAG path:
 		}
 
 		// else, ipfs path or ipns with recursive flag
-		rp, err := api.ResolvePath(req.Context, p)
+		rp, remainder, err := api.ResolvePath(req.Context, p)
 		if err != nil {
 			return err
 		}
 
 		// Trick to encode path with correct encoding.
 		encodedPath := "/" + rp.Namespace().String() + "/" + enc.Encode(rp.Cid())
-		if remainder := rp.Remainder(); remainder != "" {
-			encodedPath += "/" + remainder
+		if len(remainder) != 0 {
+			encodedPath += path.SegmentsToString(remainder...)
 		}
 
 		// Ensure valid and sanitized.

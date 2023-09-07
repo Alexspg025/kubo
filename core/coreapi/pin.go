@@ -74,7 +74,7 @@ func (api *PinAPI) IsPinned(ctx context.Context, p path.Path, opts ...caopts.Pin
 	ctx, span := tracing.Span(ctx, "CoreAPI.PinAPI", "IsPinned", trace.WithAttributes(attribute.String("path", p.String())))
 	defer span.End()
 
-	resolved, err := api.core().ResolvePath(ctx, p)
+	resolved, _, err := api.core().ResolvePath(ctx, p)
 	if err != nil {
 		return "", false, fmt.Errorf("error resolving path: %s", err)
 	}
@@ -99,7 +99,7 @@ func (api *PinAPI) Rm(ctx context.Context, p path.Path, opts ...caopts.PinRmOpti
 	ctx, span := tracing.Span(ctx, "CoreAPI.PinAPI", "Rm", trace.WithAttributes(attribute.String("path", p.String())))
 	defer span.End()
 
-	rp, err := api.core().ResolvePath(ctx, p)
+	rp, _, err := api.core().ResolvePath(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -136,12 +136,12 @@ func (api *PinAPI) Update(ctx context.Context, from path.Path, to path.Path, opt
 
 	span.SetAttributes(attribute.Bool("unpin", settings.Unpin))
 
-	fp, err := api.core().ResolvePath(ctx, from)
+	fp, _, err := api.core().ResolvePath(ctx, from)
 	if err != nil {
 		return err
 	}
 
-	tp, err := api.core().ResolvePath(ctx, to)
+	tp, _, err := api.core().ResolvePath(ctx, to)
 	if err != nil {
 		return err
 	}

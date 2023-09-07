@@ -74,7 +74,7 @@ func (api *BlockAPI) Put(ctx context.Context, src io.Reader, opts ...caopts.Bloc
 func (api *BlockAPI) Get(ctx context.Context, p path.Path) (io.Reader, error) {
 	ctx, span := tracing.Span(ctx, "CoreAPI.BlockAPI", "Get", trace.WithAttributes(attribute.String("path", p.String())))
 	defer span.End()
-	rp, err := api.core().ResolvePath(ctx, p)
+	rp, _, err := api.core().ResolvePath(ctx, p)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (api *BlockAPI) Rm(ctx context.Context, p path.Path, opts ...caopts.BlockRm
 	ctx, span := tracing.Span(ctx, "CoreAPI.BlockAPI", "Rm", trace.WithAttributes(attribute.String("path", p.String())))
 	defer span.End()
 
-	rp, err := api.core().ResolvePath(ctx, p)
+	rp, _, err := api.core().ResolvePath(ctx, p)
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func (api *BlockAPI) Stat(ctx context.Context, p path.Path) (coreiface.BlockStat
 	ctx, span := tracing.Span(ctx, "CoreAPI.BlockAPI", "Stat", trace.WithAttributes(attribute.String("path", p.String())))
 	defer span.End()
 
-	rp, err := api.core().ResolvePath(ctx, p)
+	rp, _, err := api.core().ResolvePath(ctx, p)
 	if err != nil {
 		return nil, err
 	}

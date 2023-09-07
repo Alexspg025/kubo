@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/ipfs/boxo/path"
 	ipldlegacy "github.com/ipfs/go-ipld-legacy"
 	"github.com/ipfs/kubo/core/commands/cmdenv"
 	"github.com/ipfs/kubo/core/commands/cmdutils"
@@ -33,7 +34,7 @@ func dagGet(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) e
 		return err
 	}
 
-	rp, err := api.ResolvePath(req.Context, p)
+	rp, remainder, err := api.ResolvePath(req.Context, p)
 	if err != nil {
 		return err
 	}
@@ -50,8 +51,8 @@ func dagGet(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) e
 
 	finalNode := universal.(ipld.Node)
 
-	if len(rp.Remainder()) > 0 {
-		remainderPath := ipld.ParsePath(rp.Remainder())
+	if len(remainder) > 0 {
+		remainderPath := ipld.ParsePath(path.SegmentsToString(remainder...))
 
 		finalNode, err = traversal.Get(finalNode, remainderPath)
 		if err != nil {

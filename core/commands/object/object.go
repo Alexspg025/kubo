@@ -143,7 +143,7 @@ multihash. Provided for legacy reasons. Use 'ipfs dag get' instead.
 			return err
 		}
 
-		rp, err := api.ResolvePath(req.Context, path)
+		rp, _, err := api.ResolvePath(req.Context, path)
 		if err != nil {
 			return err
 		}

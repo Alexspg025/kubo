@@ -68,7 +68,13 @@ func (s *Root) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		return nil, syscall.Errno(syscall.ENOENT)
 	}
 
-	nd, ndLnk, err := s.Ipfs.UnixFSPathResolver.ResolvePath(ctx, p)
+	imPath, err := path.NewImmutablePath(p)
+	if err != nil {
+		log.Debugf("fuse failed to convert path: %q: %s", name, err)
+		return nil, syscall.Errno(syscall.ENOENT)
+	}
+
+	nd, ndLnk, err := s.Ipfs.UnixFSPathResolver.ResolvePath(ctx, imPath)
 	if err != nil {
 		// todo: make this error more versatile.
 		return nil, syscall.Errno(syscall.ENOENT)
